@@ -1,0 +1,16 @@
+# Configuración del negocio — Generado por AgentKit
+negocio:
+  nombre: "Veterinaria Darlie"
+  descripcion: "Clínica veterinaria especializada en la atención de perros y gatos. Ofrecemos consultas generales, vacunación, desparasitación y cirugías."
+  horario: "Lunes a Viernes de 10am a 7pm, Sábados de 10am a 2pm"
+
+agente:
+  nombre: "Veterinaria Darlie"
+  tono: "profesional y amigable"
+  casos_de_uso:
+    - "Responder preguntas frecuentes sobre servicios, precios y horarios"
+    - "Agendar citas para consultas, vacunas y procedimientos"
+
+metadata:
+  creado: "2026-05-15"
+  version: "1.0"
