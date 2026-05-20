@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
-from agent.vet_db import registrar_cita_completa, obtener_citas
+from agent.appointments import guardar_cita
 
 load_dotenv()
 logger = logging.getLogger("agentkit")
@@ -70,23 +70,31 @@ HERRAMIENTAS = [
 ]
 
 
-def _ejecutar_herramienta(nombre: str, argumentos: dict) -> str:
+async def _ejecutar_herramienta(nombre: str, argumentos: dict) -> str:
     """Ejecuta la herramienta solicitada por Claude y retorna el resultado como texto."""
     if nombre == "registrar_cita":
         try:
-            resultado = registrar_cita_completa(**argumentos)
+            resultado = await guardar_cita(
+                nombre_dueno=argumentos["nombre_dueno"],
+                telefono=argumentos["telefono_dueno"],
+                nombre_mascota=argumentos["nombre_mascota"],
+                especie=argumentos["especie"],
+                servicio=argumentos["servicio"],
+                fecha=argumentos["fecha"],
+                hora=argumentos["hora"],
+            )
             return (
-                f"Cita registrada exitosamente en el sistema.\n"
-                f"ID: {resultado['cita_id']}\n"
-                f"Dueño: {resultado['dueno']}\n"
-                f"Mascota: {resultado['mascota']} ({resultado['especie']})\n"
+                f"Cita registrada exitosamente.\n"
+                f"ID: {resultado['id']}\n"
+                f"Dueño: {resultado['nombre_dueno']}\n"
+                f"Mascota: {resultado['nombre_mascota']} ({resultado['especie']})\n"
                 f"Servicio: {resultado['servicio']}\n"
                 f"Fecha: {resultado['fecha']} a las {resultado['hora']}\n"
                 f"Estado: {resultado['estado']}"
             )
         except Exception as e:
             logger.error(f"Error al registrar cita: {e}")
-            return f"Error al registrar la cita en el sistema: {str(e)}"
+            return f"Error al registrar la cita: {str(e)}"
     return "Herramienta no reconocida."
 
 
@@ -185,7 +193,7 @@ async def generar_respuesta(mensaje: str, historial: list[dict], telefono: str =
                 for bloque in response.content:
                     if bloque.type == "tool_use":
                         logger.info(f"Claude invoca herramienta: {bloque.name} con {bloque.input}")
-                        resultado = _ejecutar_herramienta(bloque.name, bloque.input)
+                        resultado = await _ejecutar_herramienta(bloque.name, bloque.input)
                         resultados_tools.append({
                             "type": "tool_result",
                             "tool_use_id": bloque.id,

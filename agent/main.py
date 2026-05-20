@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from agent.brain import generar_respuesta
 from agent.memory import inicializar_db, guardar_mensaje, obtener_historial
 from agent.providers import obtener_proveedor
-from agent.vet_db import obtener_citas
+from agent.appointments import obtener_todas_citas, CitaAgendada
 
 load_dotenv()
 
@@ -49,10 +49,10 @@ async def health_check():
 async def ver_citas(limite: int = 50):
     """
     Muestra las citas agendadas via WhatsApp.
-    Abre en el navegador: http://localhost:8000/citas
+    Abre en el navegador: https://agente-vet-darlie-production.up.railway.app/citas
     """
     try:
-        citas = obtener_citas(limite=limite)
+        citas = await obtener_todas_citas(limite=limite)
         return {
             "total": len(citas),
             "citas": citas,
